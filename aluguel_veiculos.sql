@@ -10,10 +10,6 @@ email varchar (500)
 alter table cliente
 add column sexo char(2)
 
-
-begin;
-rollback;
-commit;
 insert into cliente(nome,cnh,email) 
 values
 ('Kleber','01234567890','kleber@sql.com'),
@@ -92,8 +88,6 @@ select modelo
 from carro
 order by marca
 
- 
-rollback
 
 ----------FIM DE CARRO----------
 
@@ -111,9 +105,6 @@ foreign key (cliente_id) references cliente(id),
 foreign key (carro_id) references carro(id)
 );
 
-begin;
-rollback;
-commit;
 
 --na prática, essas inserções seriam equivalentes ao registro de aluguéis
 insert into cliente_carro(cliente_id, carro_id, data_retirada, data_devolucao)
@@ -161,10 +152,22 @@ on
 --filtragem para saber quais alugueis ainda estão em voga
 where
 	data_devolucao > current_date;
-	
-begin;
-rollback;
-commit;
+
+--uso de join:
+--relacionar cliente, veículo alugado e data de retirada e devolucao:
+
+select
+--tabela.coluna as apelido
+cliente.nome as nome_cliente,
+carro.modelo as modelo_veiculo,
+cliente_carro.data_retirada as data_retirada,
+cliente_carro.data_devolucao as data_devolucao
+
+from cliente_carro
+
+join cliente on cliente_carro.cliente_id = cliente.id
+join carro on cliente_carro.carro_id = carro.id
+
 
 ----------FIM DE CLIENTE_CARRO----------
 
@@ -260,4 +263,58 @@ on
 
 --JOIN: ASSOCIA COLUNAS (ASSOCIA VERTICALMENTE)
 --UNION: ASSOCIA LINHAS (ASSOCIA HORIZONTALMENTE)
+
+--------------------------------------------------------
+--CLAUSULA UNION:
+--relacionar cliente, veículo alugado e data de devolução;
+--filtrar UNION;
+
+select * from --declarar umm select all e 'blocar' toda a seleção union;
+(
+select
+--tabela.coluna as apelido
+cliente.nome as nome_cliente,
+carro.modelo as modelo_veiculo,
+cliente_carro.data_retirada as data_retirada,
+cliente_carro.data_devolucao as data_devolucao,
+cliente.sexo as sexo_cliente
+
+from cliente_carro
+
+join cliente on cliente_carro.cliente_id = cliente.id
+join carro on cliente_carro.carro_id = carro.id
+
+union --declarar cláusula entre ambas seleções
+
+select
+cliente.nome as nome_cliente,
+moto.modelo as modelo_veiculo,
+cliente_moto.data_retirada as data_retirada,
+cliente_moto.data_devolucao as data_devolucao,
+cliente.sexo as sexo_cliente
+
+from cliente_moto
+
+join cliente on cliente_moto.cliente_id = cliente.id
+join moto on cliente_moto.moto_id = moto.id
+
+) as lista_total --fechar e apelidar a seleção;
+
+--referenciar a seleção: apelido_union.apelido_coluna_filtro
+where
+lista_total.sexo_cliente = 'FF'
+
+/* para 2 filtros juntos: 
+	or
+	lista_total.sexo_cliente = 'NB'; 
+	(lista_total.sexo_cliente = 'MM';)
+*/
+
+/*Combinação de filtros: Cláusula AND.
+Filtro para saber quem ainda NÃO devolveu o veículo que alugou:
+*/
+
+and lista_total.data_devolucao > current_date --current_date do estudo: 2025-29-10
+
+
 
