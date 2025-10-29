@@ -3,7 +3,14 @@ id serial primary key,
 nome varchar (500),
 cnh varchar (500),
 email varchar (500)
+--sexo char(2)--
 );
+
+--adição da coluna SEXO--
+alter table cliente
+add column sexo char(2)
+
+
 begin;
 rollback;
 commit;
@@ -34,8 +41,22 @@ order by nome desc
 
 update cliente
 set cnh='06194878494'
-where id=5; 
+where id=5;
 
+update cliente
+set sexo = 'FF'
+where id in (2,3,4,8);
+
+update cliente
+set sexo = 'MM'
+where id in (1,6,7,10);
+
+update cliente
+set sexo = 'NB'
+where id in (5,9);
+
+commit
+select * from cliente
 -------------FIM DE CLIENTES-------------------
 
 create table carro(
@@ -169,8 +190,18 @@ values
 
 update moto
 set cor='azul'
-where id=2
+where id=2;
 
+update moto
+set cor='preto'
+where id in (1,3);
+
+update moto
+set cor='vermelho'
+where id=4;
+
+begin;
+commit;
 select marca, modelo, placa from moto
 order by combustivel, id asc
 --quando o conteudo escolhido para ordenar é igual para todos, ('flex'),
@@ -230,8 +261,3 @@ on
 --JOIN: ASSOCIA COLUNAS (ASSOCIA VERTICALMENTE)
 --UNION: ASSOCIA LINHAS (ASSOCIA HORIZONTALMENTE)
 
-
-
-commit;
-begin;
-rollback;
